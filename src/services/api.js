@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const rawBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE = rawBase.trim().replace(/\/+$/, "");
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem("auth_token");
@@ -8,10 +9,23 @@ export async function apiRequest(endpoint, options = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const url = `${API_BASE}${endpoint}`;
+
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers,
+    });
+  } catch (err) {
+    console.error(`Error al conectar con la API (${url}):`, err);
+    const networkError = new Error(
+      "No se pudo conectar con el servidor. Si el backend en Render estaba suspendido, puede demorar hasta 50 segundos en despertar. Por favor reintentá en un instante."
+    );
+    networkError.isNetworkError = true;
+    networkError.originalError = err;
+    throw networkError;
+  }
 
   if (response.status === 401) {
     localStorage.removeItem("auth_token");
@@ -94,4 +108,3 @@ export const api = {
       method: "DELETE",
     }),
 };
-

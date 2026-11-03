@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { BookOpenIcon } from "./Icons";
+import { BookOpenIcon, UserIcon } from "./Icons";
 
 export function CourseCard({ course }) {
   const formatPrice = (price) => {
@@ -10,6 +10,11 @@ export function CourseCard({ course }) {
       currency: "ARS",
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "P";
+    return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   };
 
   return (
@@ -24,12 +29,15 @@ export function CourseCard({ course }) {
           />
         ) : (
           <div className="course-card-placeholder" aria-hidden="true">
-            <BookOpenIcon size={36} />
+            <BookOpenIcon size={40} />
           </div>
         )}
-        {course.category && (
-          <span className="course-card-category">{course.category.name}</span>
-        )}
+        <div className="course-card-badges">
+          {course.category && (
+            <span className="course-card-category">{course.category.name}</span>
+          )}
+          <span className="course-card-level">Online en vivo</span>
+        </div>
       </div>
 
       <div className="course-card-body">
@@ -38,15 +46,25 @@ export function CourseCard({ course }) {
         </h3>
         <p className="course-card-desc">{course.description}</p>
 
+        {course.user && (
+          <div className="course-card-instructor">
+            <div className="instructor-avatar" aria-hidden="true">
+              {getInitials(course.user.name)}
+            </div>
+            <div className="instructor-info">
+              <span className="instructor-label">Profesor</span>
+              <span className="instructor-name">{course.user.name}</span>
+            </div>
+          </div>
+        )}
+
         <div className="course-card-footer">
-          <div className="course-card-meta">
-            {course.user && (
-              <span className="course-card-author">Prof. {course.user.name}</span>
-            )}
+          <div className="course-card-price-wrap">
+            <span className="price-tag-label">Inversión</span>
             <span className="course-card-price">{formatPrice(course.price)}</span>
           </div>
-          <Link to={`/courses/${course.id}`} className="btn btn-outline btn-sm">
-            Ver detalle
+          <Link to={`/courses/${course.id}`} className="btn btn-primary btn-sm">
+            Ver programa
           </Link>
         </div>
       </div>
