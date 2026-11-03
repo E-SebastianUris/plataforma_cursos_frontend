@@ -277,11 +277,44 @@ a:hover {
   resize: vertical;
 }
 .select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   cursor: pointer;
+  padding-right: 2.5rem;
+  background-color: #0c121e;
+  border-color: #1e293b;
+  transition: all 0.2s ease;
+}
+.select:hover {
+  border-color: #334155;
+  background-color: #101828;
+}
+.select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 15px rgba(56, 189, 248, 0.15);
+}
+.select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 200px;
+}
+.select-arrow-icon {
+  position: absolute;
+  right: 0.85rem;
+  pointer-events: none;
+  color: var(--text-dim);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.select-wrapper:hover .select-arrow-icon,
+.select:focus ~ .select-arrow-icon {
+  color: var(--primary);
 }
 .select option {
-  background-color: var(--surface);
-  color: var(--text);
+  background-color: #0f172a;
+  color: #f1f5f9;
+  padding: 0.6rem 0.75rem;
 }
 .sr-only {
   position: absolute;

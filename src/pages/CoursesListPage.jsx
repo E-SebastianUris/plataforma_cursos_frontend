@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { api } from "../services/api";
 import { CourseCard } from "../components/CourseCard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { SearchIcon } from "../components/Icons";
+import { SearchIcon, ChevronDownIcon } from "../components/Icons";
 
 export function CoursesListPage() {
   const [courses, setCourses] = useState([]);
@@ -76,19 +76,22 @@ export function CoursesListPage() {
 
         <div className="category-filter">
           <label htmlFor="category-select" className="filter-label">Categoría:</label>
-          <select
-            id="category-select"
-            className="select"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              id="category-select"
+              className="select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">Todas las categorías</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon className="select-arrow-icon" size={16} />
+          </div>
         </div>
 
         {(selectedCategory || appliedSearch) && (

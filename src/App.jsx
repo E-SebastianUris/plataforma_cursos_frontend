@@ -25,7 +25,7 @@ export function App() {
           </Routes>
           <footer className="footer">
             <div className="container footer-content">
-              <p>© 2026 CursosOnline - Trabajo Práctico N°2 de Programación IV</p>
+              <p>© 2026 CursosOnline · UTN - TUP</p>
             </div>
           </footer>
         </div>

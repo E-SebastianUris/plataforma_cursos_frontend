@@ -4,7 +4,7 @@ import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { StarRating } from "../components/StarRating";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { BookOpenIcon, InfoIcon, CheckCircleIcon } from "../components/Icons";
+import { BookOpenIcon, InfoIcon, CheckCircleIcon, ChevronDownIcon } from "../components/Icons";
 
 export function CourseDetailPage() {
   const { id } = useParams();
@@ -222,19 +222,22 @@ export function CourseDetailPage() {
 
                 <div className="form-group">
                   <label htmlFor="rating-select">Puntuación:</label>
-                  <select
-                    id="rating-select"
-                    className="select"
-                    value={rating}
-                    onChange={(e) => setRating(Number(e.target.value))}
-                    disabled={submittingReview}
-                  >
-                    <option value="5">5 estrellas - Excelente</option>
-                    <option value="4">4 estrellas - Muy bueno</option>
-                    <option value="3">3 estrellas - Bueno</option>
-                    <option value="2">2 estrellas - Regular</option>
-                    <option value="1">1 estrella - Malo</option>
-                  </select>
+                  <div className="select-wrapper">
+                    <select
+                      id="rating-select"
+                      className="select"
+                      value={rating}
+                      onChange={(e) => setRating(Number(e.target.value))}
+                      disabled={submittingReview}
+                    >
+                      <option value="5">5 estrellas - Excelente</option>
+                      <option value="4">4 estrellas - Muy bueno</option>
+                      <option value="3">3 estrellas - Bueno</option>
+                      <option value="2">2 estrellas - Regular</option>
+                      <option value="1">1 estrella - Malo</option>
+                    </select>
+                    <ChevronDownIcon className="select-arrow-icon" size={16} />
+                  </div>
                 </div>
 
                 <div className="form-group">
