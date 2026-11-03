@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { StarRating } from "../components/StarRating";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { BookOpenIcon, InfoIcon, CheckCircleIcon, ChevronDownIcon } from "../components/Icons";
+import { UserAvatar } from "../components/UserAvatar";
 
 export function CourseDetailPage() {
   const { id } = useParams();
@@ -148,13 +149,25 @@ export function CourseDetailPage() {
             )}
             <h1 className="course-title">{course.title}</h1>
             <p className="course-description">{course.description}</p>
-            <div className="course-meta-bar">
-              <StarRating
-                rating={reviewsData.average_rating}
-                count={reviewsData.reviews_count}
-              />
+
+            {/* Meta bar mejorada: Calificación e Instructor separados con aire y avatar */}
+            <div className="course-meta-grid">
+              <div className="meta-card-item rating-box">
+                <span className="meta-card-label">Calificación</span>
+                <StarRating
+                  rating={reviewsData.average_rating}
+                  count={reviewsData.reviews_count}
+                />
+              </div>
+
               {course.user && (
-                <span className="course-author">Dictado por <strong>{course.user.name}</strong></span>
+                <div className="meta-card-item instructor-box">
+                  <UserAvatar name={course.user.name} size={42} color="indigo" />
+                  <div className="instructor-box-info">
+                    <span className="meta-card-label">Docente a cargo</span>
+                    <strong className="instructor-full-name">{course.user.name}</strong>
+                  </div>
+                </div>
               )}
             </div>
           </header>
@@ -204,7 +217,7 @@ export function CourseDetailPage() {
           <section className="course-reviews-section" aria-labelledby="reviews-heading">
             <h2 id="reviews-heading" className="section-title">Reseñas de Alumnos</h2>
 
-            {/* Formulario de reseña (solo inscriptos que no hayan reseñado) */}
+            {/* Formulario de reseña */}
             {isEnrolled && !hasReviewed && (
               <form onSubmit={handleReviewSubmit} className="review-form card">
                 <h3>Dejá tu opinión sobre este curso</h3>
@@ -271,13 +284,16 @@ export function CourseDetailPage() {
               </div>
             )}
 
-            {/* Listado de reseñas */}
+            {/* Listado de reseñas con avatar */}
             <div className="reviews-list">
               {reviewsData.reviews && reviewsData.reviews.length > 0 ? (
                 reviewsData.reviews.map((rev) => (
                   <article key={rev.id} className="review-card">
                     <div className="review-card-header">
-                      <strong>{rev.user?.name || "Alumno"}</strong>
+                      <div className="review-author-wrap">
+                        <UserAvatar name={rev.user?.name || "Alumno"} size={32} color="emerald" />
+                        <strong>{rev.user?.name || "Alumno"}</strong>
+                      </div>
                       <StarRating rating={rev.rating} showCount={false} />
                     </div>
                     <p className="review-comment">{rev.comment}</p>
@@ -309,7 +325,7 @@ export function CourseDetailPage() {
             )}
 
             <div className="course-price-box">
-              <span className="price-label">Precio:</span>
+              <span className="price-label">Inversión:</span>
               <span className="price-value">{formatPrice(course.price)}</span>
             </div>
 

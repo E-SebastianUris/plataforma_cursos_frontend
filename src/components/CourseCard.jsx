@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { BookOpenIcon, UserIcon } from "./Icons";
+import { BookOpenIcon } from "./Icons";
+import { UserAvatar } from "./UserAvatar";
 
 export function CourseCard({ course }) {
   const formatPrice = (price) => {
@@ -10,11 +11,6 @@ export function CourseCard({ course }) {
       currency: "ARS",
       maximumFractionDigits: 0,
     }).format(price);
-  };
-
-  const getInitials = (name) => {
-    if (!name) return "P";
-    return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   };
 
   return (
@@ -48,9 +44,7 @@ export function CourseCard({ course }) {
 
         {course.user && (
           <div className="course-card-instructor">
-            <div className="instructor-avatar" aria-hidden="true">
-              {getInitials(course.user.name)}
-            </div>
+            <UserAvatar name={course.user.name} size={30} color="cyan" />
             <div className="instructor-info">
               <span className="instructor-label">Profesor</span>
               <span className="instructor-name">{course.user.name}</span>

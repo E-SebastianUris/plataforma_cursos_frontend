@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LogoIcon } from "./Icons";
+import { UserAvatar } from "./UserAvatar";
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -10,6 +11,16 @@ export function Navbar() {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+  };
+
+  const getSavedColor = () => {
+    if (!user?.id) return "cyan";
+    try {
+      const saved = localStorage.getItem(`profile_customization_${user.id}`);
+      return saved ? JSON.parse(saved).avatarColor || "cyan" : "cyan";
+    } catch {
+      return "cyan";
+    }
   };
 
   return (
@@ -30,8 +41,9 @@ export function Navbar() {
               <Link to="/my-courses" className="nav-link">Mis Cursos</Link>
               <Link to="/profile" className="nav-link">Mi Perfil</Link>
               <div className="navbar-user">
+                <UserAvatar name={user?.name} size={30} color={getSavedColor()} />
                 <span className="user-greeting">
-                  <span className="user-greeting-label">Alumno:</span> <strong>{user?.name || "Alumno"}</strong>
+                  <strong>{user?.name || "Alumno"}</strong>
                 </span>
                 <button
                   onClick={handleLogout}

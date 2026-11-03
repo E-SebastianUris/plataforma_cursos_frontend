@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { api } from "../services/api";
 import { CourseCard } from "../components/CourseCard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { SearchIcon, ChevronDownIcon, CheckCircleIcon, AcademicCapIcon } from "../components/Icons";
+import { SearchIcon, CheckCircleIcon, AcademicCapIcon } from "../components/Icons";
 
 export function CoursesListPage() {
   const [courses, setCourses] = useState([]);
@@ -83,7 +83,7 @@ export function CoursesListPage() {
 
       <div className="container">
         {/* Category Pills estilo Platzi */}
-        <div className="category-pills-bar" role="navigation" aria-label="Filtro rápido por categoría">
+        <div className="category-pills-bar" role="navigation" aria-label="Filtro por categoría">
           <button
             type="button"
             className={`category-pill ${selectedCategory === "" ? "active" : ""}`}
@@ -103,54 +103,59 @@ export function CoursesListPage() {
           ))}
         </div>
 
-        {/* Barra de Búsqueda y Filtro */}
-        <section className="filters-bar" aria-label="Búsqueda de cursos">
-          <form onSubmit={handleSearchSubmit} className="search-form">
-            <label htmlFor="search-input" className="sr-only">Buscar cursos</label>
+        {/* Buscador unificado y moderno */}
+        <section className="search-section" aria-label="Búsqueda de cursos">
+          <form onSubmit={handleSearchSubmit} className="modern-search-bar">
             <div className="search-input-wrap">
-              <SearchIcon className="search-input-icon" size={18} />
+              <SearchIcon className="search-input-icon" size={20} />
               <input
                 id="search-input"
                 type="search"
                 className="input search-input-field"
-                placeholder="Buscar por título, temática o tecnología..."
+                placeholder="Buscar cursos por título, tecnología o descripción..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => { setSearch(""); setAppliedSearch(""); }}
+                  className="search-clear-btn"
+                  aria-label="Limpiar campo de búsqueda"
+                >
+                  ✕
+                </button>
+              )}
             </div>
-            <button type="submit" className="btn btn-primary">
-              Buscar
+            <button type="submit" className="btn btn-primary search-submit-btn">
+              Buscar cursos
             </button>
           </form>
 
-          <div className="category-filter">
-            <label htmlFor="category-select" className="filter-label">Filtrar:</label>
-            <div className="select-wrapper">
-              <select
-                id="category-select"
-                className="select"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="">Todas las categorías</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDownIcon className="select-arrow-icon" size={16} />
-            </div>
-          </div>
-
+          {/* Badges de filtros activos */}
           {(selectedCategory || appliedSearch) && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="btn btn-secondary btn-sm"
-            >
-              Limpiar filtros
-            </button>
+            <div className="active-filters-row">
+              <span className="active-filters-label">Filtros aplicados:</span>
+              {selectedCategory && (
+                <span className="active-filter-chip">
+                  Categoría: {categories.find((c) => String(c.id) === selectedCategory)?.name || selectedCategory}
+                  <button type="button" onClick={() => setSelectedCategory("")} aria-label="Quitar filtro de categoría">×</button>
+                </span>
+              )}
+              {appliedSearch && (
+                <span className="active-filter-chip">
+                  Búsqueda: "{appliedSearch}"
+                  <button type="button" onClick={() => { setSearch(""); setAppliedSearch(""); }} aria-label="Quitar búsqueda">×</button>
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="clear-all-link"
+              >
+                Limpiar todo
+              </button>
+            </div>
           )}
         </section>
 
@@ -184,7 +189,7 @@ export function CoursesListPage() {
         {!loading && !error && courses.length > 0 && (
           <>
             <div className="courses-header-meta">
-              <span className="courses-count">Mostrando <strong>{courses.length}</strong> {courses.length === 1 ? "curso" : "cursos"}</span>
+              <span className="courses-count">Mostrando <strong>{courses.length}</strong> {courses.length === 1 ? "curso disponible" : "cursos disponibles"}</span>
             </div>
             <section className="courses-grid" aria-label="Listado de cursos">
               {courses.map((course) => (
