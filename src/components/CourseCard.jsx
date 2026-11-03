@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { BookOpenIcon } from "./Icons";
 
 export function CourseCard({ course }) {
   const formatPrice = (price) => {
@@ -23,7 +24,7 @@ export function CourseCard({ course }) {
           />
         ) : (
           <div className="course-card-placeholder" aria-hidden="true">
-            <span>📖</span>
+            <BookOpenIcon size={36} />
           </div>
         )}
         {course.category && (
@@ -52,4 +53,3 @@ export function CourseCard({ course }) {
     </article>
   );
 }
-

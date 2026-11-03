@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { AcademicCapIcon } from "../components/Icons";
 
 export function MyCoursesPage() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -48,7 +49,7 @@ export function MyCoursesPage() {
     setFeedbackMessage(null);
     try {
       await api.cancelOrder(orderId);
-      setFeedbackMessage({ type: "success", text: `Inscripción a "${courseTitle}" cancelada con éxito.` });
+      setFeedbackMessage({ type: "success", text: `Inscripción a "${courseTitle}" cancelada correctamente.` });
       await loadOrders();
     } catch (err) {
       setFeedbackMessage({ type: "error", text: err.message || "No se pudo cancelar la inscripción." });
@@ -79,8 +80,9 @@ export function MyCoursesPage() {
   return (
     <main className="container page-content">
       <header className="page-header">
+        <span className="page-tag">Mi Aprendizaje</span>
         <h1 className="page-title">Mis Cursos</h1>
-        <p className="page-subtitle">Gestioná tus inscripciones y accedé al contenido de tus cursos</p>
+        <p className="page-subtitle">Gestioná tus inscripciones y accedé al contenido de tus lecciones</p>
       </header>
 
       {feedbackMessage && (
@@ -100,9 +102,11 @@ export function MyCoursesPage() {
 
       {!error && orders.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">🎓</span>
+          <div className="empty-icon-wrap">
+            <AcademicCapIcon size={40} />
+          </div>
           <h2>Aún no te inscribiste a ningún curso</h2>
-          <p>Explorá nuestro catálogo de cursos para comenzar tu aprendizaje.</p>
+          <p>Explorá nuestro catálogo de cursos para comenzar tu formación.</p>
           <Link to="/" className="btn btn-primary" style={{ marginTop: "1rem" }}>
             Explorar catálogo
           </Link>
@@ -128,7 +132,7 @@ export function MyCoursesPage() {
                   </div>
 
                   <p className="order-date">
-                    Inscripción #{order.id} · Creada el {new Date(order.created_at).toLocaleDateString("es-AR")}
+                    Inscripción #{order.id} · Fecha: {new Date(order.created_at).toLocaleDateString("es-AR")}
                   </p>
                 </div>
 
@@ -157,4 +161,3 @@ export function MyCoursesPage() {
     </main>
   );
 }
-

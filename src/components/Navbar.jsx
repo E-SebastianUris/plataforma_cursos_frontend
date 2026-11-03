@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { LogoIcon } from "./Icons";
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -15,7 +16,9 @@ export function Navbar() {
     <header className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-brand">
-          <span className="navbar-logo">📚</span>
+          <div className="navbar-logo-wrap">
+            <LogoIcon size={20} />
+          </div>
           <span className="navbar-title">CursosOnline</span>
         </Link>
 
@@ -27,7 +30,9 @@ export function Navbar() {
               <Link to="/my-courses" className="nav-link">Mis Cursos</Link>
               <Link to="/profile" className="nav-link">Mi Perfil</Link>
               <div className="navbar-user">
-                <span className="user-greeting">Hola, <strong>{user?.name || "Alumno"}</strong></span>
+                <span className="user-greeting">
+                  <span className="user-greeting-label">Alumno:</span> <strong>{user?.name || "Alumno"}</strong>
+                </span>
                 <button
                   onClick={handleLogout}
                   className="btn btn-secondary btn-sm"
@@ -48,4 +53,3 @@ export function Navbar() {
     </header>
   );
 }
-

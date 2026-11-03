@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { api } from "../services/api";
 import { CourseCard } from "../components/CourseCard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { SearchIcon } from "../components/Icons";
 
 export function CoursesListPage() {
   const [courses, setCourses] = useState([]);
@@ -48,22 +49,26 @@ export function CoursesListPage() {
   return (
     <main className="container page-content">
       <header className="page-header">
+        <span className="page-tag">Exploración</span>
         <h1 className="page-title">Catálogo de Cursos</h1>
-        <p className="page-subtitle">Explorá y aprendé nuevas habilidades con nuestros cursos dictados por profesionales</p>
+        <p className="page-subtitle">Formación técnica dictada por profesionales del sector</p>
       </header>
 
       {/* Filtros y Búsqueda */}
       <section className="filters-bar" aria-label="Filtros de cursos">
         <form onSubmit={handleSearchSubmit} className="search-form">
           <label htmlFor="search-input" className="sr-only">Buscar cursos</label>
-          <input
-            id="search-input"
-            type="search"
-            className="input"
-            placeholder="Buscar por título o contenido..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="search-input-wrap">
+            <SearchIcon className="search-input-icon" size={18} />
+            <input
+              id="search-input"
+              type="search"
+              className="input search-input-field"
+              placeholder="Buscar por título o contenido..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <button type="submit" className="btn btn-primary">
             Buscar
           </button>
@@ -98,7 +103,7 @@ export function CoursesListPage() {
       </section>
 
       {/* Estados: Carga, Error, Sin resultados, Lista */}
-      {loading && <LoadingSpinner message="Buscando cursos disponibles..." />}
+      {loading && <LoadingSpinner message="Consultando cursos disponibles..." />}
 
       {error && !loading && (
         <div className="alert alert-error" role="alert">
@@ -111,11 +116,13 @@ export function CoursesListPage() {
 
       {!loading && !error && courses.length === 0 && (
         <div className="empty-state">
-          <span className="empty-icon">🔍</span>
+          <div className="empty-icon-wrap">
+            <SearchIcon size={36} />
+          </div>
           <h2>No se encontraron cursos</h2>
           <p>Probá cambiando los términos de búsqueda o seleccionando otra categoría.</p>
           {(selectedCategory || appliedSearch) && (
-            <button onClick={handleResetFilters} className="btn btn-primary">
+            <button onClick={handleResetFilters} className="btn btn-primary" style={{ marginTop: "1rem" }}>
               Ver todos los cursos
             </button>
           )}
@@ -132,4 +139,3 @@ export function CoursesListPage() {
     </main>
   );
 }
-

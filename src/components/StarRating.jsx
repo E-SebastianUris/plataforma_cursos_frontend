@@ -1,4 +1,5 @@
 import React from "react";
+import { StarIcon } from "./Icons";
 
 export function StarRating({ rating = 0, count, showCount = true }) {
   const stars = [1, 2, 3, 4, 5];
@@ -6,14 +7,13 @@ export function StarRating({ rating = 0, count, showCount = true }) {
 
   return (
     <div className="star-rating" aria-label={`Calificación: ${rating || 0} de 5`}>
-      <span className="stars" aria-hidden="true">
+      <span className="stars-wrapper" aria-hidden="true">
         {stars.map((star) => (
-          <span
+          <StarIcon
             key={star}
-            className={`star ${star <= Math.round(rating || 0) ? "star-filled" : "star-empty"}`}
-          >
-            ★
-          </span>
+            filled={star <= Math.round(rating || 0)}
+            className={`star-icon ${star <= Math.round(rating || 0) ? "star-filled" : "star-empty"}`}
+          />
         ))}
       </span>
       {rating ? (
@@ -27,4 +27,3 @@ export function StarRating({ rating = 0, count, showCount = true }) {
     </div>
   );
 }
-

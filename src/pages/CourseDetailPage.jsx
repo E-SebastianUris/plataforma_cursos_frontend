@@ -4,6 +4,7 @@ import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { StarRating } from "../components/StarRating";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { BookOpenIcon, InfoIcon, CheckCircleIcon } from "../components/Icons";
 
 export function CourseDetailPage() {
   const { id } = useParams();
@@ -166,7 +167,8 @@ export function CourseDetailPage() {
 
             {!isEnrolledActive && (
               <div className="notice-box">
-                ℹ️ El contenido completo de las lecciones está disponible para alumnos inscriptos con estado activo.
+                <InfoIcon size={18} className="notice-box-icon" />
+                <span>El contenido completo de las lecciones está disponible para alumnos inscriptos con estado activo.</span>
               </div>
             )}
 
@@ -261,7 +263,8 @@ export function CourseDetailPage() {
 
             {isEnrolled && hasReviewed && (
               <div className="notice-box">
-                ✓ Ya dejaste una reseña para este curso.
+                <CheckCircleIcon size={18} className="notice-box-icon" />
+                <span>Ya dejaste una reseña para este curso.</span>
               </div>
             )}
 
@@ -281,7 +284,7 @@ export function CourseDetailPage() {
                   </article>
                 ))
               ) : (
-                <p className="text-muted">Aún no hay reseñas para este curso. ¡Sé el primero!</p>
+                <p className="text-muted">Aún no hay reseñas para este curso.</p>
               )}
             </div>
           </section>
@@ -298,7 +301,7 @@ export function CourseDetailPage() {
               />
             ) : (
               <div className="course-card-placeholder large" aria-hidden="true">
-                <span>📖</span>
+                <BookOpenIcon size={48} />
               </div>
             )}
 
@@ -321,7 +324,7 @@ export function CourseDetailPage() {
 
             {isEnrolled ? (
               <div className="enrolled-status-box">
-                <span className="badge badge-success">✓ Ya estás inscripto</span>
+                <span className="badge badge-success">Inscripción registrada</span>
                 <p className="status-note">
                   Estado: <strong>{activeEnrollment.status}</strong>
                 </p>
@@ -340,9 +343,15 @@ export function CourseDetailPage() {
             )}
 
             <ul className="course-benefits-list">
-              <li>✓ Acceso a todas las lecciones</li>
-              <li>✓ Certificado al completar</li>
-              <li>✓ Soporte directo del profesor</li>
+              <li>
+                <CheckCircleIcon size={16} /> Acceso a todas las lecciones
+              </li>
+              <li>
+                <CheckCircleIcon size={16} /> Certificado de finalización
+              </li>
+              <li>
+                <CheckCircleIcon size={16} /> Seguimiento y consultas
+              </li>
             </ul>
           </div>
         </aside>
@@ -350,4 +359,3 @@ export function CourseDetailPage() {
     </main>
   );
 }
-

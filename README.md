@@ -86,3 +86,4 @@ npm run preview
 |---|---|---|
 | Alumno 1 | `juan@test.com` | `123456` |
 | Alumno 2 | `ana@test.com` | `123456` |
+
