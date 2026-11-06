@@ -1,7 +1,7 @@
 import React from "react";
 
 export function getInitials(name) {
-  if (!name) return "US";
+  if (!name) return "HB";
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
     return parts[0].slice(0, 2).toUpperCase();
@@ -9,7 +9,7 @@ export function getInitials(name) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function UserAvatar({ name, size = 36, color = "cyan", className = "" }) {
+export function UserAvatar({ name, imageUrl = null, size = 36, color = "cyan", className = "" }) {
   const initials = getInitials(name);
 
   const colorStyles = {
@@ -41,6 +41,31 @@ export function UserAvatar({ name, size = 36, color = "cyan", className = "" }) 
   };
 
   const currentTheme = colorStyles[color] || colorStyles.cyan;
+
+  if (imageUrl) {
+    return (
+      <div
+        className={`user-avatar avatar-has-image ${className}`}
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          minWidth: `${size}px`,
+          borderColor: currentTheme.border,
+        }}
+        aria-label={`Avatar de ${name || "Usuario"}`}
+      >
+        <img
+          src={imageUrl}
+          alt={name || "Avatar"}
+          className="avatar-custom-img"
+          onError={(e) => {
+            // Fallback si la imagen falla
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

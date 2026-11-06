@@ -13,15 +13,17 @@ export function Navbar() {
     navigate("/login");
   };
 
-  const getSavedColor = () => {
-    if (!user?.id) return "cyan";
+  const getCustomization = () => {
+    if (!user?.id) return { avatarColor: "cyan", avatarImage: null };
     try {
       const saved = localStorage.getItem(`profile_customization_${user.id}`);
-      return saved ? JSON.parse(saved).avatarColor || "cyan" : "cyan";
+      return saved ? JSON.parse(saved) : { avatarColor: "cyan", avatarImage: null };
     } catch {
-      return "cyan";
+      return { avatarColor: "cyan", avatarImage: null };
     }
   };
+
+  const { avatarColor, avatarImage } = getCustomization();
 
   return (
     <header className="navbar">
@@ -30,18 +32,21 @@ export function Navbar() {
           <div className="navbar-logo-wrap">
             <LogoIcon size={20} />
           </div>
-          <span className="navbar-title">CursosOnline</span>
+          <span className="navbar-brand-name">
+            HuskyByte<span className="brand-braces">{"{}"}</span>
+          </span>
         </Link>
 
         <nav className="navbar-links" aria-label="Navegación principal">
           <Link to="/" className="nav-link">Catálogo</Link>
+          <Link to="/plans" className="nav-link">Planes</Link>
 
           {isAuthenticated ? (
             <>
               <Link to="/my-courses" className="nav-link">Mis Cursos</Link>
               <Link to="/profile" className="nav-link">Mi Perfil</Link>
               <div className="navbar-user">
-                <UserAvatar name={user?.name} size={30} color={getSavedColor()} />
+                <UserAvatar name={user?.name} imageUrl={avatarImage} size={30} color={avatarColor} />
                 <span className="user-greeting">
                   <strong>{user?.name || "Alumno"}</strong>
                 </span>

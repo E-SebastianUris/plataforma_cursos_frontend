@@ -4,8 +4,9 @@ import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { StarRating } from "../components/StarRating";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { BookOpenIcon, InfoIcon, CheckCircleIcon, ChevronDownIcon } from "../components/Icons";
+import { BookOpenIcon, InfoIcon, CheckCircleIcon } from "../components/Icons";
 import { UserAvatar } from "../components/UserAvatar";
+import { InteractiveStarRating } from "../components/InteractiveStarRating";
 
 export function CourseDetailPage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export function CourseDetailPage() {
   const [userOrders, setUserOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [coverError, setCoverError] = useState(false);
 
   // Enroll state
   const [enrolling, setEnrolling] = useState(false);
@@ -141,7 +143,6 @@ export function CourseDetailPage() {
       </nav>
 
       <div className="course-detail-layout">
-        {/* Columna Principal */}
         <section className="course-detail-main">
           <header className="course-detail-header">
             {course.category && (
@@ -150,7 +151,6 @@ export function CourseDetailPage() {
             <h1 className="course-title">{course.title}</h1>
             <p className="course-description">{course.description}</p>
 
-            {/* Meta bar mejorada: Calificación e Instructor separados con aire y avatar */}
             <div className="course-meta-grid">
               <div className="meta-card-item rating-box">
                 <span className="meta-card-label">Calificación</span>
@@ -172,7 +172,7 @@ export function CourseDetailPage() {
             </div>
           </header>
 
-          {/* Temario / Lecciones */}
+          {/* Temario */}
           <section className="course-lessons-section" aria-labelledby="temario-heading">
             <h2 id="temario-heading" className="section-title">
               Contenido del Curso ({course.lessons?.length || 0} lecciones)
@@ -213,11 +213,11 @@ export function CourseDetailPage() {
             </div>
           </section>
 
-          {/* Sección de Reseñas */}
+          {/* Reseñas */}
           <section className="course-reviews-section" aria-labelledby="reviews-heading">
             <h2 id="reviews-heading" className="section-title">Reseñas de Alumnos</h2>
 
-            {/* Formulario de reseña */}
+            {/* Caso 1: Inscripto y no ha reseñado -> Muestra formulario interactivo */}
             {isEnrolled && !hasReviewed && (
               <form onSubmit={handleReviewSubmit} className="review-form card">
                 <h3>Dejá tu opinión sobre este curso</h3>
@@ -234,23 +234,12 @@ export function CourseDetailPage() {
                 )}
 
                 <div className="form-group">
-                  <label htmlFor="rating-select">Puntuación:</label>
-                  <div className="select-wrapper">
-                    <select
-                      id="rating-select"
-                      className="select"
-                      value={rating}
-                      onChange={(e) => setRating(Number(e.target.value))}
-                      disabled={submittingReview}
-                    >
-                      <option value="5">5 estrellas - Excelente</option>
-                      <option value="4">4 estrellas - Muy bueno</option>
-                      <option value="3">3 estrellas - Bueno</option>
-                      <option value="2">2 estrellas - Regular</option>
-                      <option value="1">1 estrella - Malo</option>
-                    </select>
-                    <ChevronDownIcon className="select-arrow-icon" size={16} />
-                  </div>
+                  <label>Puntuación interactiva:</label>
+                  <InteractiveStarRating
+                    value={rating}
+                    onChange={(val) => setRating(val)}
+                    disabled={submittingReview}
+                  />
                 </div>
 
                 <div className="form-group">
@@ -259,7 +248,7 @@ export function CourseDetailPage() {
                     id="review-comment"
                     className="input textarea"
                     rows="3"
-                    placeholder="Contá tu experiencia con el curso..."
+                    placeholder="Contá tu experiencia y qué aprendiste..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     disabled={submittingReview}
@@ -277,14 +266,23 @@ export function CourseDetailPage() {
               </form>
             )}
 
+            {/* Caso 2: Inscripto y ya reseñó */}
             {isEnrolled && hasReviewed && (
               <div className="notice-box">
                 <CheckCircleIcon size={18} className="notice-box-icon" />
-                <span>Ya dejaste una reseña para este curso.</span>
+                <span>Ya publicaste una reseña para este curso. ¡Muchas gracias por tu aporte!</span>
               </div>
             )}
 
-            {/* Listado de reseñas con avatar */}
+            {/* Caso 3: No inscripto -> Mensaje claro de restricción */}
+            {!isEnrolled && (
+              <div className="notice-box notice-box-locked">
+                <InfoIcon size={18} className="notice-box-icon" />
+                <span>Solo los alumnos inscriptos en este curso pueden calificar y opinar. Inscribite para compartir tu experiencia.</span>
+              </div>
+            )}
+
+            {/* Listado de reseñas */}
             <div className="reviews-list">
               {reviewsData.reviews && reviewsData.reviews.length > 0 ? (
                 reviewsData.reviews.map((rev) => (
@@ -309,14 +307,15 @@ export function CourseDetailPage() {
           </section>
         </section>
 
-        {/* Sidebar de Compra / Inscripción */}
+        {/* Sidebar */}
         <aside className="course-detail-sidebar">
           <div className="card sticky-card">
-            {course.cover_image_url ? (
+            {course.cover_image_url && !coverError ? (
               <img
                 src={course.cover_image_url}
                 alt={`Portada de ${course.title}`}
                 className="course-detail-cover"
+                onError={() => setCoverError(true)}
               />
             ) : (
               <div className="course-card-placeholder large" aria-hidden="true">

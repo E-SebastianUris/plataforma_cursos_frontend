@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { BookOpenIcon } from "./Icons";
 import { UserAvatar } from "./UserAvatar";
 
 export function CourseCard({ course }) {
+  const [imgError, setImgError] = useState(false);
+
   const formatPrice = (price) => {
     if (price === 0) return "Gratis";
     return new Intl.NumberFormat("es-AR", {
@@ -13,15 +15,18 @@ export function CourseCard({ course }) {
     }).format(price);
   };
 
+  const showImage = course.cover_image_url && !imgError;
+
   return (
     <article className="course-card">
       <div className="course-card-image-wrap">
-        {course.cover_image_url ? (
+        {showImage ? (
           <img
             src={course.cover_image_url}
             alt={`Portada de ${course.title}`}
             className="course-card-image"
             loading="lazy"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="course-card-placeholder" aria-hidden="true">

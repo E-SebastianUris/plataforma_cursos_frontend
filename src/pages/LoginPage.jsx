@@ -38,7 +38,7 @@ export function LoginPage() {
       <div className="card auth-card">
         <header className="auth-header">
           <h1 className="auth-title">Iniciar Sesión</h1>
-          <p className="auth-subtitle">Ingresá a tu cuenta de CursosOnline</p>
+          <p className="auth-subtitle">Ingresá a tu cuenta de HuskyByte{"{}"}</p>
         </header>
 
         {error && (

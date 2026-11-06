@@ -48,7 +48,7 @@ export function RegisterPage() {
       <div className="card auth-card">
         <header className="auth-header">
           <h1 className="auth-title">Crear Cuenta</h1>
-          <p className="auth-subtitle">Registrate como alumno para acceder a los cursos</p>
+          <p className="auth-subtitle">Registrate en HuskyByte{"{}"} para acceder a todos los cursos</p>
         </header>
 
         {errors.length > 0 && (

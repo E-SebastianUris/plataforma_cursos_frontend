@@ -54,7 +54,7 @@ export function CoursesListPage() {
           <div className="hero-content">
             <div className="hero-pill">
               <span className="hero-pill-dot"></span>
-              Plataforma de Educación Tecnológica
+              Plataforma HuskyByte{"{}"}
             </div>
             <h1 className="hero-title">
               Impulsá tu futuro profesional con <span className="gradient-text">cursos de tecnología</span>

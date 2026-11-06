@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { UserAvatar } from "../components/UserAvatar";
-import { CheckCircleIcon, UserIcon } from "../components/Icons";
+import { CheckCircleIcon } from "../components/Icons";
 
 export function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("profile"); // "profile" | "security"
-
-  // Profile data
+  const [activeTab, setActiveTab] = useState("profile");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
   const [statusText, setStatusText] = useState("");
   const [avatarColor, setAvatarColor] = useState("cyan");
+  const [avatarImage, setAvatarImage] = useState(null);
 
-  // Security data
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
@@ -37,56 +36,65 @@ export function ProfilePage() {
       setName(user.name || "");
       setEmail(user.email || "");
 
-      // Cargar personalización guardada localmente
-      const savedCustomization = localStorage.getItem(`profile_customization_${user.id}`);
-      if (savedCustomization) {
+      const saved = localStorage.getItem(`profile_customization_${user.id}`);
+      if (saved) {
         try {
-          const parsed = JSON.parse(savedCustomization);
+          const parsed = JSON.parse(saved);
           setBio(parsed.bio || "");
           setStatusText(parsed.statusText || "");
           setAvatarColor(parsed.avatarColor || "cyan");
+          setAvatarImage(parsed.avatarImage || null);
         } catch {
-          // Ignorar error al parsear
+          // parse error fallback
         }
       }
     }
   }, [user]);
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(["La imagen debe pesar menos de 2 MB"]);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarImage(reader.result);
+      setSuccessMessage("Imagen cargada. Guardá los cambios para confirmarla.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setAvatarImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setSuccessMessage("Foto eliminada. Guardá los cambios para confirmarla.");
+  };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setErrors([]);
     setSuccessMessage(null);
 
-    if (!name.trim()) {
-      setErrors(["El nombre no puede estar vacío"]);
-      return;
-    }
-    if (!email.trim()) {
-      setErrors(["El correo no puede estar vacío"]);
-      return;
-    }
+    if (!name.trim()) return setErrors(["El nombre no puede estar vacío"]);
+    if (!email.trim()) return setErrors(["El correo no puede estar vacío"]);
 
     setLoading(true);
     try {
       await updateProfile({ name: name.trim(), email: email.trim() });
 
-      // Guardar personalización extendida
       if (user?.id) {
-        const customization = {
-          bio: bio.trim(),
-          statusText: statusText.trim(),
-          avatarColor,
-        };
-        localStorage.setItem(`profile_customization_${user.id}`, JSON.stringify(customization));
+        localStorage.setItem(
+          `profile_customization_${user.id}`,
+          JSON.stringify({ bio: bio.trim(), statusText: statusText.trim(), avatarColor, avatarImage })
+        );
       }
-
       setSuccessMessage("¡Perfil y personalización actualizados con éxito!");
     } catch (err) {
-      if (err.data && err.data.errors) {
-        setErrors(err.data.errors);
-      } else {
-        setErrors([err.message || "Error al actualizar el perfil"]);
-      }
+      setErrors(err.data?.errors || [err.message || "Error al actualizar"]);
     } finally {
       setLoading(false);
     }
@@ -97,36 +105,18 @@ export function ProfilePage() {
     setErrors([]);
     setSuccessMessage(null);
 
-    if (!password) {
-      setErrors(["Ingresá una nueva contraseña"]);
-      return;
-    }
-    if (password.length < 6) {
-      setErrors(["La contraseña debe tener al menos 6 caracteres"]);
-      return;
-    }
-    if (password !== passwordConfirmation) {
-      setErrors(["Las contraseñas no coinciden"]);
-      return;
-    }
+    if (!password) return setErrors(["Ingresá una contraseña"]);
+    if (password.length < 6) return setErrors(["Mínimo 6 caracteres"]);
+    if (password !== passwordConfirmation) return setErrors(["Las contraseñas no coinciden"]);
 
     setLoading(true);
     try {
-      await updateProfile({
-        name: user.name,
-        email: user.email,
-        password,
-        password_confirmation: passwordConfirmation,
-      });
-      setSuccessMessage("¡Contraseña actualizada correctamente!");
+      await updateProfile({ name: user.name, email: user.email, password, password_confirmation: passwordConfirmation });
+      setSuccessMessage("¡Contraseña actualizada!");
       setPassword("");
       setPasswordConfirmation("");
     } catch (err) {
-      if (err.data && err.data.errors) {
-        setErrors(err.data.errors);
-      } else {
-        setErrors([err.message || "Error al cambiar la contraseña"]);
-      }
+      setErrors(err.data?.errors || [err.message || "Error al cambiar contraseña"]);
     } finally {
       setLoading(false);
     }
@@ -135,20 +125,19 @@ export function ProfilePage() {
   if (authLoading) return <LoadingSpinner message="Cargando perfil..." />;
 
   const colorOptions = [
-    { id: "cyan", label: "Cian Eléctrico", hex: "#38bdf8" },
-    { id: "emerald", label: "Esmeralda", hex: "#10b981" },
-    { id: "indigo", label: "Índigo", hex: "#6366f1" },
-    { id: "purple", label: "Violeta", hex: "#a855f7" },
-    { id: "amber", label: "Ámbar", hex: "#f59e0b" },
+    { id: "cyan", hex: "#38bdf8" },
+    { id: "emerald", hex: "#10b981" },
+    { id: "indigo", hex: "#6366f1" },
+    { id: "purple", hex: "#a855f7" },
+    { id: "amber", hex: "#f59e0b" },
   ];
 
   return (
     <main className="container page-content">
       <div className="profile-wrapper">
-        {/* Header con tarjeta visual de usuario estilo Platzi / Coder */}
         <header className="profile-banner-card card">
           <div className="profile-banner-main">
-            <UserAvatar name={name || user?.name} size={76} color={avatarColor} className="profile-main-avatar" />
+            <UserAvatar name={name || user?.name} imageUrl={avatarImage} size={76} color={avatarColor} />
             <div className="profile-banner-text">
               <div className="profile-title-row">
                 <h1 className="profile-banner-name">{name || user?.name || "Usuario"}</h1>
@@ -167,12 +156,9 @@ export function ProfilePage() {
           </div>
         </header>
 
-        {/* Tabs de navegación de perfil */}
         <div className="profile-tabs" role="tablist">
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === "profile"}
             className={`profile-tab-btn ${activeTab === "profile" ? "active" : ""}`}
             onClick={() => { setActiveTab("profile"); setSuccessMessage(null); setErrors([]); }}
           >
@@ -180,8 +166,6 @@ export function ProfilePage() {
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === "security"}
             className={`profile-tab-btn ${activeTab === "security" ? "active" : ""}`}
             onClick={() => { setActiveTab("security"); setSuccessMessage(null); setErrors([]); }}
           >
@@ -199,36 +183,62 @@ export function ProfilePage() {
         {errors.length > 0 && (
           <div className="alert alert-error" role="alert">
             <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
-              {errors.map((msg, idx) => (
-                <li key={idx}>{msg}</li>
-              ))}
+              {errors.map((msg, idx) => <li key={idx}>{msg}</li>)}
             </ul>
           </div>
         )}
 
-        {/* Contenido de Tab 1: Personalización */}
         {activeTab === "profile" && (
           <div className="card profile-content-card">
-            <h2 className="section-title">Datos Personales y Personalización</h2>
-            <p className="section-desc">Personalizá cómo te ven tus compañeros y docentes en la plataforma</p>
+            <h2 className="section-title">Foto y Datos de Perfil</h2>
 
             <form onSubmit={handleProfileSubmit} className="profile-form" noValidate>
-              <div className="form-group">
-                <label>Color del Avatar (PFP):</label>
-                <div className="avatar-color-picker">
-                  {colorOptions.map((opt) => (
+              <div className="form-group pfp-upload-section">
+                <label>Foto de Perfil (PFP):</label>
+                <div className="pfp-controls">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    Subir imagen propia
+                  </button>
+                  {avatarImage && (
                     <button
-                      key={opt.id}
                       type="button"
-                      className={`color-picker-dot ${avatarColor === opt.id ? "selected" : ""}`}
-                      style={{ backgroundColor: opt.hex }}
-                      onClick={() => setAvatarColor(opt.id)}
-                      title={opt.label}
-                      aria-label={`Elegir color ${opt.label}`}
-                    />
-                  ))}
+                      onClick={handleRemoveImage}
+                      className="btn btn-danger btn-sm"
+                    >
+                      Eliminar foto
+                    </button>
+                  )}
                 </div>
               </div>
+
+              {!avatarImage && (
+                <div className="form-group">
+                  <label>Color de fondo del Avatar:</label>
+                  <div className="avatar-color-picker">
+                    {colorOptions.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        className={`color-picker-dot ${avatarColor === opt.id ? "selected" : ""}`}
+                        style={{ backgroundColor: opt.hex }}
+                        onClick={() => setAvatarColor(opt.id)}
+                        aria-label={`Color ${opt.id}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="form-row">
                 <div className="form-group flex-1">
@@ -277,30 +287,23 @@ export function ProfilePage() {
                   id="prof-bio"
                   className="input textarea"
                   rows="3"
-                  placeholder="Contá brevemente tu experiencia, objetivos de aprendizaje o intereses tecnológicos..."
+                  placeholder="Contá brevemente tus metas o intereses..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   disabled={loading}
                 />
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-              >
-                {loading ? "Guardando cambios..." : "Guardar personalización"}
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? "Guardando..." : "Guardar cambios"}
               </button>
             </form>
           </div>
         )}
 
-        {/* Contenido de Tab 2: Seguridad */}
         {activeTab === "security" && (
           <div className="card profile-content-card">
             <h2 className="section-title">Actualizar Contraseña</h2>
-            <p className="section-desc">Mantené tu cuenta protegida eligiendo una contraseña segura</p>
-
             <form onSubmit={handleSecuritySubmit} className="profile-form" noValidate>
               <div className="form-group">
                 <label htmlFor="prof-new-password">Nueva contraseña</label>
@@ -325,19 +328,15 @@ export function ProfilePage() {
                   className="input"
                   value={passwordConfirmation}
                   onChange={(e) => setPasswordConfirmation(e.target.value)}
-                  placeholder="Repetí la nueva contraseña"
+                  placeholder="Repetí la contraseña"
                   disabled={loading}
                   autoComplete="new-password"
                   required
                 />
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading || !password}
-              >
-                {loading ? "Actualizando contraseña..." : "Actualizar contraseña"}
+              <button type="submit" className="btn btn-primary" disabled={loading || !password}>
+                {loading ? "Actualizando..." : "Actualizar contraseña"}
               </button>
             </form>
           </div>
