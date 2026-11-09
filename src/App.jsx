@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { CurrencyProvider } from "./context/CurrencyContext";
 import { Navbar } from "./components/Navbar";
 import { CoursesListPage } from "./pages/CoursesListPage";
 import { CourseDetailPage } from "./pages/CourseDetailPage";
@@ -14,25 +15,27 @@ export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="app-layout">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<CoursesListPage />} />
-            <Route path="/courses/:id" element={<CourseDetailPage />} />
-            <Route path="/plans" element={<PlansPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/my-courses" element={<MyCoursesPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Routes>
-          <footer className="footer">
-            <div className="container footer-content">
-              <p>
-                © 2026 <strong>HuskyByte<span className="brand-braces">{"{}"}</span></strong> · Plataforma de Aprendizaje · UTN - TUP
-              </p>
-            </div>
-          </footer>
-        </div>
+        <CurrencyProvider>
+          <div className="app-layout">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<CoursesListPage />} />
+              <Route path="/courses/:id" element={<CourseDetailPage />} />
+              <Route path="/plans" element={<PlansPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/my-courses" element={<MyCoursesPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Routes>
+            <footer className="footer">
+              <div className="container footer-content">
+                <p>
+                  © 2026 <strong>HuskyByte<span className="brand-braces">{"{}"}</span></strong> · Plataforma de Aprendizaje · UTN - TUP
+                </p>
+              </div>
+            </footer>
+          </div>
+        </CurrencyProvider>
       </AuthProvider>
     </BrowserRouter>
   );

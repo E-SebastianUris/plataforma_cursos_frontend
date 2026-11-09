@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { UserAvatar } from "../components/UserAvatar";
 import { CheckCircleIcon } from "../components/Icons";
+import { ImageCropperModal } from "../components/ImageCropperModal";
 
 export function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading, updateProfile } = useAuth();
@@ -17,6 +18,7 @@ export function ProfilePage() {
   const [statusText, setStatusText] = useState("");
   const [avatarColor, setAvatarColor] = useState("cyan");
   const [avatarImage, setAvatarImage] = useState(null);
+  const [cropperRawSrc, setCropperRawSrc] = useState(null);
 
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -55,17 +57,28 @@ export function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setErrors(["La imagen debe pesar menos de 2 MB"]);
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(["La imagen original no debe superar los 5 MB"]);
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
-      setAvatarImage(reader.result);
-      setSuccessMessage("Imagen cargada. Guardá los cambios para confirmarla.");
+      // Interrumpir subida directa y abrir modal de recorte interactivo
+      setCropperRawSrc(reader.result);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleCropConfirm = (croppedBase64) => {
+    setAvatarImage(croppedBase64);
+    setCropperRawSrc(null);
+    setSuccessMessage("Foto recortada con éxito. Hacé clic en 'Guardar cambios' para confirmarla.");
+  };
+
+  const handleCropCancel = () => {
+    setCropperRawSrc(null);
   };
 
   const handleRemoveImage = () => {
@@ -342,6 +355,15 @@ export function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Modal interactivo de recorte de foto de perfil */}
+      {cropperRawSrc && (
+        <ImageCropperModal
+          imageSrc={cropperRawSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+        />
+      )}
     </main>
   );
 }

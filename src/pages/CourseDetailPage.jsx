@@ -7,6 +7,8 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { BookOpenIcon, InfoIcon, CheckCircleIcon } from "../components/Icons";
 import { UserAvatar } from "../components/UserAvatar";
 import { InteractiveStarRating } from "../components/InteractiveStarRating";
+import { PriceDisplay } from "../components/PriceDisplay";
+import { PublicProfileModal } from "../components/PublicProfileModal";
 
 export function CourseDetailPage() {
   const { id } = useParams();
@@ -19,6 +21,7 @@ export function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [coverError, setCoverError] = useState(false);
+  const [selectedProfileUser, setSelectedProfileUser] = useState(null);
 
   // Enroll state
   const [enrolling, setEnrolling] = useState(false);
@@ -161,10 +164,19 @@ export function CourseDetailPage() {
               </div>
 
               {course.user && (
-                <div className="meta-card-item instructor-box">
+                <div
+                  className="meta-card-item instructor-box clickable-profile-trigger"
+                  onClick={() => setSelectedProfileUser(course.user)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") setSelectedProfileUser(course.user);
+                  }}
+                  title={`Ver perfil docente de ${course.user.name}`}
+                >
                   <UserAvatar name={course.user.name} size={42} color="indigo" />
                   <div className="instructor-box-info">
-                    <span className="meta-card-label">Docente a cargo</span>
+                    <span className="meta-card-label">Docente a cargo (ver perfil)</span>
                     <strong className="instructor-full-name">{course.user.name}</strong>
                   </div>
                 </div>
@@ -288,9 +300,23 @@ export function CourseDetailPage() {
                 reviewsData.reviews.map((rev) => (
                   <article key={rev.id} className="review-card">
                     <div className="review-card-header">
-                      <div className="review-author-wrap">
-                        <UserAvatar name={rev.user?.name || "Alumno"} size={32} color="emerald" />
-                        <strong>{rev.user?.name || "Alumno"}</strong>
+                      <div
+                        className="review-author-wrap clickable-profile-trigger"
+                        onClick={() => setSelectedProfileUser(rev.user || { name: "Alumno" })}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            setSelectedProfileUser(rev.user || { name: "Alumno" });
+                          }
+                        }}
+                        title={`Ver perfil público de ${rev.user?.name || "este alumno"}`}
+                      >
+                        <UserAvatar name={rev.user?.name || "Alumno"} size={34} color="emerald" />
+                        <div className="review-author-info">
+                          <strong className="review-author-name">{rev.user?.name || "Alumno"}</strong>
+                          <span className="profile-pill-hint">Ver perfil</span>
+                        </div>
                       </div>
                       <StarRating rating={rev.rating} showCount={false} />
                     </div>
@@ -325,7 +351,7 @@ export function CourseDetailPage() {
 
             <div className="course-price-box">
               <span className="price-label">Inversión:</span>
-              <span className="price-value">{formatPrice(course.price)}</span>
+              <PriceDisplay amount={course.price} fromCurrency="ARS" size="lg" />
             </div>
 
             {enrollSuccess && (
@@ -374,6 +400,15 @@ export function CourseDetailPage() {
           </div>
         </aside>
       </div>
+
+      {/* Modal de perfil público de docente o alumno */}
+      {selectedProfileUser && (
+        <PublicProfileModal
+          user={selectedProfileUser}
+          currentUser={user}
+          onClose={() => setSelectedProfileUser(null)}
+        />
+      )}
     </main>
   );
 }

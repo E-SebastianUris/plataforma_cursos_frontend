@@ -1,11 +1,26 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircleIcon, AcademicCapIcon, StarIcon, InfoIcon } from "../components/Icons";
+import { useCurrency } from "../context/CurrencyContext";
+import { PriceDisplay } from "../components/PriceDisplay";
 
 export function PlansPage() {
   const [billingCycle, setBillingCycle] = useState("monthly"); // "monthly" | "yearly"
+  const { getPriceInfo } = useCurrency();
 
   const isYearly = billingCycle === "yearly";
+
+  // Precios base en USD con reducción del ~17% aplicada
+  // Learner: antes $12/mes -> ahora $10/mes. Anual: antes $115/año -> ahora $96/año ($8/mes)
+  // Pro: antes $30/mes -> ahora $25/mes. Anual: antes $288/año -> ahora $240/año ($20/mes)
+  const learnerAmount = isYearly ? 96 : 10;
+  const learnerMonthlyEq = isYearly ? 8 : 10;
+
+  const proAmount = isYearly ? 240 : 25;
+  const proMonthlyEq = isYearly ? 20 : 25;
+
+  const learnerEqInfo = getPriceInfo(learnerMonthlyEq, "USD");
+  const proEqInfo = getPriceInfo(proMonthlyEq, "USD");
 
   return (
     <main className="page-content">
@@ -64,13 +79,14 @@ export function PlansPage() {
             </div>
 
             <div className="plan-pricing">
-              <div className="price-display">
-                <span className="currency">USD</span>
-                <span className="amount">{isYearly ? "115" : "12"}</span>
+              <div className="plan-price-row">
+                <PriceDisplay amount={learnerAmount} fromCurrency="USD" size="lg" />
                 <span className="period">/{isYearly ? "año" : "mes"}</span>
               </div>
               {isYearly && (
-                <p className="price-subnote">Equivale a <strong>$9.58 USD/mes</strong> (Ahorrás $29 USD)</p>
+                <p className="price-subnote">
+                  Equivale a <strong>{learnerEqInfo.isARS ? learnerEqInfo.finalFormatted : learnerEqInfo.formatted}/mes</strong> (Ahorrás 2 meses)
+                </p>
               )}
             </div>
 
@@ -102,13 +118,14 @@ export function PlansPage() {
             </div>
 
             <div className="plan-pricing">
-              <div className="price-display">
-                <span className="currency">USD</span>
-                <span className="amount">{isYearly ? "288" : "30"}</span>
+              <div className="plan-price-row">
+                <PriceDisplay amount={proAmount} fromCurrency="USD" size="lg" />
                 <span className="period">/{isYearly ? "año" : "mes"}</span>
               </div>
               {isYearly && (
-                <p className="price-subnote">Equivale a <strong>$24.00 USD/mes</strong> (Ahorrás $72 USD)</p>
+                <p className="price-subnote">
+                  Equivale a <strong>{proEqInfo.isARS ? proEqInfo.finalFormatted : proEqInfo.formatted}/mes</strong> (Ahorrás 2 meses)
+                </p>
               )}
             </div>
 
@@ -178,4 +195,3 @@ export function PlansPage() {
     </main>
   );
 }
-

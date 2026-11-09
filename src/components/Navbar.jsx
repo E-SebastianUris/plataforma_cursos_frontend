@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LogoIcon } from "./Icons";
 import { UserAvatar } from "./UserAvatar";
+import { CurrencySelector } from "./CurrencySelector";
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -40,6 +41,9 @@ export function Navbar() {
         <nav className="navbar-links" aria-label="Navegación principal">
           <Link to="/" className="nav-link">Catálogo</Link>
           <Link to="/plans" className="nav-link">Planes</Link>
+
+          {/* Selector de Moneda e Internacionalización */}
+          <CurrencySelector />
 
           {isAuthenticated ? (
             <>

@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { CourseDetailPage } from "../pages/CourseDetailPage";
 import { AuthProvider } from "../context/AuthContext";
+import { CurrencyProvider } from "../context/CurrencyContext";
 import { api } from "../services/api";
 
 vi.mock("../services/api", () => ({
@@ -59,9 +60,11 @@ describe("CourseDetailPage", () => {
     render(
       <MemoryRouter initialEntries={["/courses/1"]}>
         <AuthProvider>
-          <Routes>
-            <Route path="/courses/:id" element={<CourseDetailPage />} />
-          </Routes>
+          <CurrencyProvider>
+            <Routes>
+              <Route path="/courses/:id" element={<CourseDetailPage />} />
+            </Routes>
+          </CurrencyProvider>
         </AuthProvider>
       </MemoryRouter>
     );
@@ -88,9 +91,11 @@ describe("CourseDetailPage", () => {
     render(
       <MemoryRouter initialEntries={["/courses/1"]}>
         <AuthProvider>
-          <Routes>
-            <Route path="/courses/:id" element={<CourseDetailPage />} />
-          </Routes>
+          <CurrencyProvider>
+            <Routes>
+              <Route path="/courses/:id" element={<CourseDetailPage />} />
+            </Routes>
+          </CurrencyProvider>
         </AuthProvider>
       </MemoryRouter>
     );
@@ -117,9 +122,11 @@ describe("CourseDetailPage", () => {
     render(
       <MemoryRouter initialEntries={["/courses/1"]}>
         <AuthProvider>
-          <Routes>
-            <Route path="/courses/:id" element={<CourseDetailPage />} />
-          </Routes>
+          <CurrencyProvider>
+            <Routes>
+              <Route path="/courses/:id" element={<CourseDetailPage />} />
+            </Routes>
+          </CurrencyProvider>
         </AuthProvider>
       </MemoryRouter>
     );
