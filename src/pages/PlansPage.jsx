@@ -29,7 +29,7 @@ export function PlansPage() {
         <div className="container plans-hero-container">
           <div className="hero-pill">
             <span className="hero-pill-dot"></span>
-            Suscripciones HuskyByte{"{}"}
+            Suscripciones HuskyByte
           </div>
           <h1 className="plans-hero-title">
             Invertí en tu futuro con nuestros <span className="gradient-text">planes de suscripción</span>

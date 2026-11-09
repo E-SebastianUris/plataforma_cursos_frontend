@@ -30,7 +30,7 @@ export function App() {
             <footer className="footer">
               <div className="container footer-content">
                 <p>
-                  © 2026 <strong>HuskyByte<span className="brand-braces">{"{}"}</span></strong> · Plataforma de Aprendizaje · UTN - TUP
+                  © 2026 <strong>HuskyByte</strong> · Plataforma de Aprendizaje · UTN - TUP
                 </p>
               </div>
             </footer>

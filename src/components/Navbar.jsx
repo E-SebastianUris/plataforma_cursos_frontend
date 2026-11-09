@@ -34,41 +34,45 @@ export function Navbar() {
             <LogoIcon size={20} />
           </div>
           <span className="navbar-brand-name">
-            HuskyByte<span className="brand-braces">{"{}"}</span>
+            HuskyByte
           </span>
         </Link>
 
         <nav className="navbar-links" aria-label="Navegación principal">
-          <Link to="/" className="nav-link">Catálogo</Link>
-          <Link to="/plans" className="nav-link">Planes</Link>
+          <div className="navbar-nav-group">
+            <Link to="/" className="nav-link">Catálogo</Link>
+            <Link to="/plans" className="nav-link">Planes</Link>
+            {isAuthenticated && <Link to="/my-courses" className="nav-link">Mis Cursos</Link>}
+          </div>
 
-          {/* Selector de Moneda e Internacionalización */}
-          <CurrencySelector />
+          <div className="navbar-right-group">
+            {/* Selector de Moneda e Internacionalización a la derecha */}
+            <CurrencySelector />
 
-          {isAuthenticated ? (
-            <>
-              <Link to="/my-courses" className="nav-link">Mis Cursos</Link>
-              <Link to="/profile" className="nav-link">Mi Perfil</Link>
-              <div className="navbar-user">
-                <UserAvatar name={user?.name} imageUrl={avatarImage} size={30} color={avatarColor} />
-                <span className="user-greeting">
-                  <strong>{user?.name || "Alumno"}</strong>
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-secondary btn-sm"
-                  aria-label="Cerrar sesión"
-                >
-                  Cerrar sesión
-                </button>
+            {isAuthenticated ? (
+              <>
+                <Link to="/profile" className="nav-link">Mi Perfil</Link>
+                <div className="navbar-user">
+                  <UserAvatar name={user?.name} imageUrl={avatarImage} size={30} color={avatarColor} />
+                  <span className="user-greeting">
+                    <strong>{user?.name || "Alumno"}</strong>
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="btn btn-secondary btn-sm"
+                    aria-label="Cerrar sesión"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="navbar-auth">
+                <Link to="/login" className="btn btn-secondary btn-sm">Iniciar sesión</Link>
+                <Link to="/register" className="btn btn-primary btn-sm">Registrarse</Link>
               </div>
-            </>
-          ) : (
-            <div className="navbar-auth">
-              <Link to="/login" className="btn btn-secondary btn-sm">Iniciar sesión</Link>
-              <Link to="/register" className="btn btn-primary btn-sm">Registrarse</Link>
-            </div>
-          )}
+            )}
+          </div>
         </nav>
       </div>
     </header>

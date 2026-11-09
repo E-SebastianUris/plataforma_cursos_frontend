@@ -31,7 +31,7 @@ export function PriceDisplay({ amount, fromCurrency = "ARS", size = "md", classN
         </div>
         <div className="price-base-row">
           <span className="price-base-value">{priceInfo.baseFormatted}</span>
-          <span className="price-base-label">sin impuestos</span>
+          <span className="price-base-label">sin impuestos nacionales</span>
         </div>
       </div>
     );
@@ -40,7 +40,7 @@ export function PriceDisplay({ amount, fromCurrency = "ARS", size = "md", classN
   return (
     <div className={`price-display-wrapper size-${size} ${className}`}>
       <span className="price-standard-value">{priceInfo.formatted}</span>
-      <span className="price-currency-code">{priceInfo.currencyCode}</span>
     </div>
   );
 }
+

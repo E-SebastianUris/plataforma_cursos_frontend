@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserAvatar } from "./UserAvatar";
-import { AcademicCapIcon, CheckCircleIcon } from "./Icons";
+import { CheckCircleIcon } from "./Icons";
 
 export function PublicProfileModal({ user, currentUser, onClose }) {
   useEffect(() => {
@@ -32,8 +32,8 @@ export function PublicProfileModal({ user, currentUser, onClose }) {
     customization.bio ||
     user.bio ||
     (user.role === "profesor"
-      ? "Docente especializado en ciencias de la computación y desarrollo de software con amplia experiencia en la industria digital."
-      : "Estudiante apasionado por la tecnología, formándose en desarrollo web y herramientas modernas en HuskyByte{}.");
+      ? "Docente especializado en ciencias de la computación y desarrollo de software con amplia experiencia en la industria digital y formación de nuevos talentos."
+      : "Estudiante apasionado por la tecnología y la programación web, formándose continuamente en herramientas modernas dentro de la plataforma HuskyByte.");
 
   const displayStatus = customization.statusText || user.statusText || null;
   const avatarColor = customization.avatarColor || user.avatarColor || (user.role === "profesor" ? "indigo" : "emerald");
@@ -68,7 +68,7 @@ export function PublicProfileModal({ user, currentUser, onClose }) {
             <UserAvatar
               name={displayName}
               imageUrl={avatarImage}
-              size={80}
+              size={84}
               color={avatarColor}
             />
           </div>
@@ -81,7 +81,7 @@ export function PublicProfileModal({ user, currentUser, onClose }) {
             </h2>
             <div className="public-profile-badges">
               <span className={`badge ${userRole === "profesor" ? "badge-primary" : "badge-secondary"}`}>
-                {userRole === "profesor" ? "Profesor" : "Estudiante"}
+                {userRole === "profesor" ? "Profesor Titular" : "Estudiante"}
               </span>
               <span className="badge badge-community">
                 <CheckCircleIcon size={13} /> Miembro Verificado
@@ -96,9 +96,15 @@ export function PublicProfileModal({ user, currentUser, onClose }) {
             </div>
           )}
 
-          <div className="public-profile-section">
-            <h3 className="public-profile-section-title">Sobre mí</h3>
-            <p className="public-profile-bio">{displayBio}</p>
+          {/* El apartado "Sobre mí" como centro del perfil */}
+          <div className="public-profile-section bio-highlight-section">
+            <div className="section-title-with-pill">
+              <h3 className="public-profile-section-title">Sobre mí</h3>
+              <span className="pill-subtle">Biografía pública</span>
+            </div>
+            <div className="public-profile-bio-card">
+              <p className="public-profile-bio">{displayBio}</p>
+            </div>
           </div>
 
           <div className="public-profile-meta-grid">
@@ -107,8 +113,8 @@ export function PublicProfileModal({ user, currentUser, onClose }) {
               <span className="meta-item-value">UTN - TUP</span>
             </div>
             <div className="public-profile-meta-item">
-              <span className="meta-item-label">Plataforma</span>
-              <span className="meta-item-value">HuskyByte{"{}"}</span>
+              <span className="meta-item-label">Comunidad</span>
+              <span className="meta-item-value">HuskyByte</span>
             </div>
           </div>
 

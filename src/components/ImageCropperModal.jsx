@@ -1,24 +1,51 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
 export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
+  const CROP_SIZE = 300;     // 300x300 px de área de recorte circular
+  const OUTPUT_SIZE = 400;   // 400x400 px de resolución final exportada
+
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
 
   const imageRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Dimensiones del visor de recorte
-  const CROP_SIZE = 300; // 300x300 px de área de recorte circular
-
-  // Reset offset cuando cambia la imagen
+  // Carga robusta de la imagen (funciona con DataURL, blob o URL externa)
   useEffect(() => {
-    setOffset({ x: 0, y: 0 });
+    if (!imageSrc) return;
+
     setZoom(1);
-    setImgLoaded(false);
+    setOffset({ x: 0, y: 0 });
+
+    const img = new Image();
+    img.onload = () => {
+      setNaturalSize({ width: img.naturalWidth || 300, height: img.naturalHeight || 300 });
+      setImgLoaded(true);
+    };
+    img.onerror = () => {
+      setImgLoaded(true); // Permitir desbloqueo aun con fallback
+    };
+    img.src = imageSrc;
+
+    if (img.complete && img.naturalWidth) {
+      setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
+      setImgLoaded(true);
+    }
   }, [imageSrc]);
+
+  // Dimensiones calculadas para que la imagen cubra completamente el círculo (object-fit: cover)
+  const nw = naturalSize.width || 300;
+  const nh = naturalSize.height || 300;
+  const baseScale = Math.max(CROP_SIZE / nw, CROP_SIZE / nh);
+  const baseWidth = nw * baseScale;
+  const baseHeight = nh * baseScale;
+
+  const currentWidth = baseWidth * zoom;
+  const currentHeight = baseHeight * zoom;
 
   // Manejo de drag con Mouse
   const handleMouseDown = (e) => {
@@ -76,12 +103,11 @@ export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
     setZoom((prev) => Math.min(3, Math.max(1, parseFloat((prev + delta).toFixed(2)))));
   };
 
-  // Recorte final en Canvas
+  // Recorte final en Canvas off-screen
   const handleCropComplete = () => {
     const img = imageRef.current;
     if (!img) return;
 
-    const OUTPUT_SIZE = 400; // Resolución final de 400x400 px
     const canvas = document.createElement("canvas");
     canvas.width = OUTPUT_SIZE;
     canvas.height = OUTPUT_SIZE;
@@ -89,24 +115,23 @@ export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
 
     if (!ctx) return;
 
-    // Calcular escala y posición relativa entre el elemento visual y la imagen real
-    const rect = img.getBoundingClientRect();
-    const scaleRatio = OUTPUT_SIZE / CROP_SIZE;
-
-    // Centro del círculo en el canvas
+    ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Creamos recorte circular en el canvas
+    // Creamos máscara circular en el canvas
     ctx.beginPath();
     ctx.arc(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
 
-    // Dibujamos la imagen posicionada y escalada
-    const drawX = (offset.x + (CROP_SIZE - rect.width) / 2) * scaleRatio;
-    const drawY = (offset.y + (CROP_SIZE - rect.height) / 2) * scaleRatio;
-    const drawW = rect.width * scaleRatio;
-    const drawH = rect.height * scaleRatio;
+    // Proporción de resolución entre el visor y el canvas exportado
+    const ratio = OUTPUT_SIZE / CROP_SIZE;
+
+    // Posición en el canvas
+    const drawX = ((CROP_SIZE - currentWidth) / 2 + offset.x) * ratio;
+    const drawY = ((CROP_SIZE - currentHeight) / 2 + offset.y) * ratio;
+    const drawW = currentWidth * ratio;
+    const drawH = currentHeight * ratio;
 
     ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
@@ -130,7 +155,7 @@ export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
         </div>
 
         <p className="cropper-instructions">
-          Arrastrá y ajustá el zoom para centrar tu foto dentro del círculo:
+          Arrastrá con el mouse o dedo y ajustá el zoom para centrar tu foto en el círculo:
         </p>
 
         {/* Viewport de recorte con máscara circular */}
@@ -146,21 +171,25 @@ export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Imagen arrastrable y escalable */}
+          {/* Imagen arrastrable y escalable con posicionamiento absoluto preciso */}
           <img
             ref={imageRef}
             src={imageSrc}
             alt="Vista previa para recortar"
             className="cropper-target-img"
             style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+              width: `${currentWidth}px`,
+              height: `${currentHeight}px`,
+              left: `${(CROP_SIZE - currentWidth) / 2 + offset.x}px`,
+              top: `${(CROP_SIZE - currentHeight) / 2 + offset.y}px`,
               cursor: isDragging ? "grabbing" : "grab",
+              userSelect: "none",
+              pointerEvents: "none",
             }}
-            onLoad={() => setImgLoaded(true)}
             draggable={false}
           />
 
-          {/* Máscara circular translúcida superpuesta */}
+          {/* Máscara circular superpuesta */}
           <div className="cropper-mask-overlay">
             <div className="cropper-circle-hole" style={{ width: `${CROP_SIZE}px`, height: `${CROP_SIZE}px` }}>
               <div className="cropper-circle-border" />
@@ -202,7 +231,7 @@ export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
           <span className="cropper-zoom-value">{Math.round(zoom * 100)}%</span>
         </div>
 
-        {/* Botones de acción */}
+        {/* Botones de acción: "Aplicar recorte" siempre habilitado y clickeable */}
         <div className="cropper-actions-row">
           <button
             type="button"
@@ -215,7 +244,6 @@ export function ImageCropperModal({ imageSrc, onConfirm, onCancel }) {
             type="button"
             className="btn btn-primary"
             onClick={handleCropComplete}
-            disabled={!imgLoaded}
           >
             Aplicar recorte
           </button>
