@@ -2,6 +2,37 @@ import React, { useState, useRef, useEffect } from "react";
 import { useCurrency, CURRENCIES } from "../context/CurrencyContext";
 import { ChevronDownIcon } from "./Icons";
 
+// Diccionario de mapeo: código de moneda -> código de país de 2 letras en FlagCDN
+export const FLAG_CODES = {
+  USD: "us",
+  EUR: "eu",
+  ARS: "ar",
+  CLP: "cl",
+  BRL: "br",
+  COP: "co",
+  UYU: "uy",
+};
+
+/**
+ * Componente que renderiza una imagen real de bandera desde FlagCDN
+ */
+export function FlagImage({ code, country = "", width = 20 }) {
+  const countryCode = FLAG_CODES[code] || "us";
+  const height = Math.round((width * 3) / 4); // proporción estándar 4:3
+
+  return (
+    <img
+      src={`https://flagcdn.com/w20/${countryCode}.png`}
+      srcSet={`https://flagcdn.com/w40/${countryCode}.png 2x`}
+      width={width}
+      height={height}
+      alt={country || code}
+      className="currency-flag-img"
+      loading="lazy"
+    />
+  );
+}
+
 export function CurrencySelector() {
   const { currencyCode, changeCurrency, currentCurrency } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +77,7 @@ export function CurrencySelector() {
         aria-haspopup="listbox"
         title="Cambiar moneda y país"
       >
-        <span className="currency-flag">{currentCurrency.flag}</span>
+        <FlagImage code={currentCurrency.code} country={currentCurrency.country} width={20} />
         <span className="currency-code-label">{currentCurrency.code}</span>
         <ChevronDownIcon size={14} className={`currency-chevron ${isOpen ? "open" : ""}`} />
       </button>
@@ -68,7 +99,7 @@ export function CurrencySelector() {
                   className={`currency-option-item ${isSelected ? "selected" : ""}`}
                   onClick={() => handleSelect(curr.code)}
                 >
-                  <span className="currency-option-flag">{curr.flag}</span>
+                  <FlagImage code={curr.code} country={curr.country} width={20} />
                   <div className="currency-option-info">
                     <span className="currency-option-name">{curr.name}</span>
                     <span className="currency-option-country">{curr.country}</span>
@@ -83,4 +114,3 @@ export function CurrencySelector() {
     </div>
   );
 }
-
